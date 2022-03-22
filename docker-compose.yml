@@ -1,0 +1,35 @@
+version: '3.7'
+services:
+  redis:
+    image: "redis:alpine"
+    command: redis-server --requirepass bla
+    restart: always
+    ports:
+     - "6379:6379"
+  mongodb:
+    image: "mongo:latest"
+    command: mongod --auth
+    restart: always
+    ports:
+     - "27017:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=bla
+      - MONGO_INITDB_DATABASE=cartola
+      - MONGO_INITDB_USER=test
+      - MONGO_INITDB_PASSWORD=test
+    volumes:
+      - ./data:/data/db
+  mercado-producer:
+    build: 
+      context: .
+      dockerfile: ./Dockerfile
+      network: host
+      args:
+        - SERVICE_NAME=mercado-producer
+    ports:
+      - "3000:3000"
+    tty: true
+    volumes:
+      - ./cartola-commons:/workspace/cartola-commons
+      - ./go.work:/workspace/go.work
